@@ -2,13 +2,9 @@
 #include <IRremote.h>
 #include <Keyboard.h>
 
-#if defined(ESP32)
-int IR_RECEIVE_PIN = 15;
-#else
-int IR_RECEIVE_PIN = 2;
-#endif
-IRrecv IrReceiver(IR_RECEIVE_PIN);
+#define IR_RECEIVE_PIN 16
 
+IRrecv Rx(IR_RECEIVE_PIN);
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
