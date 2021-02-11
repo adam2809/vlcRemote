@@ -60,13 +60,13 @@ void performIrAction(uint16_t command){
         Serial.println("PLAY");
         Keyboard.write('k');
         break;
-    case 0x15:
-        Serial.println("VOL UP");
-        Keyboard.press(VOL_UP_KEY);
+    case 0x40:
+        Serial.println("FWD");
+        Keyboard.write('l');
         break;
-    case 0x07:
-        Serial.println("VOL DOWN");
-        Keyboard.press(VOL_DOWN_KEY);
+    case 0x44:
+        Serial.println("BACK");
+        Keyboard.write('j');
         break;
     default:
         Serial.println("Command not recognized");
