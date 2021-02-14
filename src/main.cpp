@@ -58,10 +58,17 @@ uint16_t receiveIr(){
 
 
 void loop() {
-    Dispatcher dispatcher = Dispatcher();
+    uint16_t dispatchArr[3] = {
+        0x43,
+        0x40,
+        0x44
+    };
     YTActionSet ytActionSet = YTActionSet();
     VLCMacActionSet vlcActionSet = VLCMacActionSet();
-    dispatcher.setActionSet(&vlcActionSet);
+    Dispatcher dispatcher = Dispatcher(
+        &ytActionSet,
+        dispatchArr
+    );
 
     delay(200);
     uint16_t received = receiveIr();

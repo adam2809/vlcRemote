@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include <Keyboard.h>
 
+#define ACTION_COUNT 3
+
 class ActionSet{
     public:
 		virtual void play();
@@ -9,26 +11,23 @@ class ActionSet{
 }; 
 class Dispatcher{
 	public:
-		Dispatcher(){
+		Dispatcher(ActionSet* actionSet,uint16_t dispatchArr[ACTION_COUNT]){
+            _actionSet = actionSet;
+            setDispatchArr(dispatchArr);
         }
 		void dispatchCommand(uint16_t command){
-            switch (command){
-                case 0x43:
-                    Serial.println("PLAY");
-                    _actionSet->play();
-                    break;
-                case 0x40:
-                    Serial.println("FWD");
-                    _actionSet->forward();
-                    break;
-                case 0x44:
-                    Serial.println("BACK");
-                    _actionSet->back();
-                    break;
-                default:
-                    Serial.println("Command not recognized");
-                    break;
-            } 
+            if (command == _dispatchArr[0]){
+                Serial.println("PLAY");
+                _actionSet->play();
+            }else if(command == _dispatchArr[1]){
+                Serial.println("FWD");
+                _actionSet->forward();
+            }else if(command == _dispatchArr[2]){
+                Serial.println("BACK");
+                _actionSet->back();
+            }else{
+                Serial.println("Command not recognized");
+            }
         }
 
         void setActionSet(ActionSet* actionSet){
@@ -37,8 +36,17 @@ class Dispatcher{
         ActionSet* getActionSet(){
             return _actionSet;
         }
-	protected:
+
+        void setDispatchArr(uint16_t dispatchArr[ACTION_COUNT]){
+            for(int i=0;i<ACTION_COUNT;i++){
+                _dispatchArr[i] = dispatchArr[i];
+            }
+        }
+
+
+	private:
         ActionSet* _actionSet;
+        uint16_t _dispatchArr[ACTION_COUNT];
 };
 
 class VLCMacActionSet : public ActionSet{
