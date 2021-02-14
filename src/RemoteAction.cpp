@@ -25,22 +25,15 @@ class RemoteAction{
             } 
         }
 	protected:
-		void play(){
-            
-        }
-		void forward(){
-
-        }
-		void back(){
-
-        }
+		virtual void play();
+		virtual void forward();
+		virtual void back();
 		// int commandToActionIndex(uint16_t command);
 };
-
 class VLCRemoteAction : public RemoteAction{
     protected:
         void play(){
-
+            Keyboard.write(' ');
         }
         void forward(){
 

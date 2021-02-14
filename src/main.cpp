@@ -9,7 +9,6 @@
 int IR_RECEIVE_PIN = 10;
 
 
-YTRemoteAction action = YTRemoteAction();
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -27,7 +26,7 @@ void setup() {
 
     Serial.print(F("Ready to receive IR signals at pin "));
     Serial.println(IR_RECEIVE_PIN);
-    
+
     Keyboard.begin();
 }
 
@@ -59,10 +58,15 @@ uint16_t receiveIr(){
 
 
 void loop() {
+    RemoteAction *action;
+    YTRemoteAction ytAction = YTRemoteAction();
+    VLCRemoteAction vlcAction = VLCRemoteAction();
+    action = &vlcAction;
+
     delay(200);
     uint16_t received = receiveIr();
 
     if (received != 0){
-        action.perform(received);
+        action->perform(received);
     }
 }
