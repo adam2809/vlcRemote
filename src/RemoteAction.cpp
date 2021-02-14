@@ -28,7 +28,6 @@ class RemoteAction{
 		virtual void play();
 		virtual void forward();
 		virtual void back();
-		// int commandToActionIndex(uint16_t command);
 };
 class VLCRemoteAction : public RemoteAction{
     protected:
@@ -36,10 +35,20 @@ class VLCRemoteAction : public RemoteAction{
             Keyboard.write(' ');
         }
         void forward(){
+            Keyboard.press(KEY_LEFT_GUI);
+            Keyboard.press(KEY_LEFT_ALT);
 
+            Keyboard.write(KEY_RIGHT_ARROW);
+
+            Keyboard.releaseAll();
         }
         void back(){
+            Keyboard.press(KEY_LEFT_GUI);
+            Keyboard.press(KEY_LEFT_ALT);
 
+            Keyboard.write(KEY_LEFT_ARROW);
+
+            Keyboard.releaseAll();
         }
 };
 
