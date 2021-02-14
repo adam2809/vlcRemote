@@ -58,15 +58,15 @@ uint16_t receiveIr(){
 
 
 void loop() {
-    RemoteAction *action;
-    YTRemoteAction ytAction = YTRemoteAction();
-    VLCRemoteAction vlcAction = VLCRemoteAction();
-    action = &vlcAction;
+    Dispatcher dispatcher = Dispatcher();
+    YTActionSet ytActionSet = YTActionSet();
+    VLCMacActionSet vlcActionSet = VLCMacActionSet();
+    dispatcher.setActionSet(&vlcActionSet);
 
     delay(200);
     uint16_t received = receiveIr();
 
     if (received != 0){
-        action->perform(received);
+        dispatcher.dispatchCommand(received);
     }
 }

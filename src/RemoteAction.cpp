@@ -1,36 +1,48 @@
 #include "Arduino.h"
 #include <Keyboard.h>
 
-class RemoteAction{
+class ActionSet{
+    public:
+		virtual void play();
+		virtual void forward();
+		virtual void back();
+}; 
+class Dispatcher{
 	public:
-		RemoteAction(){
+		Dispatcher(){
         }
-		void perform(uint16_t command){
+		void dispatchCommand(uint16_t command){
             switch (command){
                 case 0x43:
                     Serial.println("PLAY");
-                    play();
+                    _actionSet->play();
                     break;
                 case 0x40:
                     Serial.println("FWD");
-                    forward();
+                    _actionSet->forward();
                     break;
                 case 0x44:
                     Serial.println("BACK");
-                    back();
+                    _actionSet->back();
                     break;
                 default:
                     Serial.println("Command not recognized");
                     break;
             } 
         }
+
+        void setActionSet(ActionSet* actionSet){
+            _actionSet = actionSet;
+        }
+        ActionSet* getActionSet(){
+            return _actionSet;
+        }
 	protected:
-		virtual void play();
-		virtual void forward();
-		virtual void back();
+        ActionSet* _actionSet;
 };
-class VLCRemoteAction : public RemoteAction{
-    protected:
+
+class VLCMacActionSet : public ActionSet{
+    public:
         void play(){
             Keyboard.write(' ');
         }
@@ -52,8 +64,8 @@ class VLCRemoteAction : public RemoteAction{
         }
 };
 
-class YTRemoteAction : public RemoteAction{
-    protected:
+class YTActionSet : public ActionSet{
+    public:
         void play(){
             Keyboard.write('k');
         }
