@@ -4,9 +4,12 @@
 
 #include <Arduino.h>
 #include <IRremote.h>
-#include <Keyboard.h>
+#include "RemoteAction.cpp"
 
 int IR_RECEIVE_PIN = 10;
+
+
+YTRemoteAction action = YTRemoteAction();
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -24,7 +27,7 @@ void setup() {
 
     Serial.print(F("Ready to receive IR signals at pin "));
     Serial.println(IR_RECEIVE_PIN);
-
+    
     Keyboard.begin();
 }
 
@@ -54,31 +57,12 @@ uint16_t receiveIr(){
     return 0;
 }
 
-void performIrAction(uint16_t command){
-    switch (command){
-    case 0x43:
-        Serial.println("PLAY");
-        Keyboard.write('k');
-        break;
-    case 0x40:
-        Serial.println("FWD");
-        Keyboard.write('l');
-        break;
-    case 0x44:
-        Serial.println("BACK");
-        Keyboard.write('j');
-        break;
-    default:
-        Serial.println("Command not recognized");
-        break;
-    }                        
-}
 
 void loop() {
     delay(200);
     uint16_t received = receiveIr();
 
     if (received != 0){
-        performIrAction(received);
+        action.perform(received);
     }
 }
