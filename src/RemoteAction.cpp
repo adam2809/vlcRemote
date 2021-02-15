@@ -1,13 +1,14 @@
 #include "Arduino.h"
 #include <Keyboard.h>
 
-#define ACTION_COUNT 3
+#define ACTION_COUNT 4
 
 class ActionSet{
     public:
 		virtual void play();
 		virtual void forward();
 		virtual void back();
+		virtual void sub();
 }; 
 class Dispatcher{
 	public:
@@ -25,6 +26,9 @@ class Dispatcher{
             }else if(command == _dispatchArr[2]){
                 Serial.println("BACK");
                 _actionSet->back();
+            }else if(command == _dispatchArr[3]){
+                Serial.println("SUB");
+                _actionSet->sub();
             }else{
                 Serial.println("Command not recognized");
             }
@@ -49,11 +53,15 @@ class Dispatcher{
         uint16_t _dispatchArr[ACTION_COUNT];
 };
 
-class VLCMacActionSet : public ActionSet{
+class VLCActionSet : public ActionSet{
     public:
         void play(){
             Keyboard.write(' ');
         }
+};
+
+class VLCMacActionSet : public VLCActionSet{
+    public:
         void forward(){
             Keyboard.press(KEY_LEFT_GUI);
             Keyboard.press(KEY_LEFT_ALT);
@@ -70,6 +78,22 @@ class VLCMacActionSet : public ActionSet{
 
             Keyboard.releaseAll();
         }
+
+        void sub(){
+            Keyboard.write('s');
+        }
+};
+class VLCLinuxActionSet : public VLCActionSet{
+    public:
+        void forward(){
+            Keyboard.write(KEY_RIGHT_ARROW);
+        }
+        void back(){
+            Keyboard.write(KEY_LEFT_ARROW);
+        }
+        void sub(){
+            Keyboard.write('v');
+        }
 };
 
 class YTActionSet : public ActionSet{
@@ -82,5 +106,8 @@ class YTActionSet : public ActionSet{
         }
         void back(){
             Keyboard.write('j');
+        }
+        void sub(){
+            Keyboard.write('c');
         }
 };

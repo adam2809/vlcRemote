@@ -10,14 +10,15 @@ int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
 #define MODE_LED_PIN 14
 
-uint16_t carMp3DispatchArr[3] = {
+uint16_t carMp3DispatchArr[4] = {
         0x43,
         0x40,
-        0x44
+        0x44,
+        0x9
     };
 bool isYtMode = false;
 YTActionSet ytActionSet = YTActionSet();
-VLCMacActionSet vlcActionSet = VLCMacActionSet();
+VLCLinuxActionSet vlcActionSet = VLCLinuxActionSet();
 Dispatcher dispatcher = Dispatcher(
     &vlcActionSet,
     carMp3DispatchArr
