@@ -7,11 +7,28 @@
 #include "RemoteAction.cpp"
 
 int IR_RECEIVE_PIN = 10;
+#define MODE_CHANGE_PIN 16
+#define MODE_LED_PIN 14
 
-
+uint16_t carMp3DispatchArr[3] = {
+        0x43,
+        0x40,
+        0x44
+    };
+bool isYtMode = false;
+YTActionSet ytActionSet = YTActionSet();
+VLCMacActionSet vlcActionSet = VLCMacActionSet();
+Dispatcher dispatcher = Dispatcher(
+    &vlcActionSet,
+    carMp3DispatchArr
+);
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
+    pinMode(MODE_LED_PIN, OUTPUT);
+
+    digitalWrite(MODE_LED_PIN,LOW);
 
     Serial.begin(115200);
 #if defined(__AVR_ATmega32U4__) || defined(SERIAL_USB) || defined(SERIAL_PORT_USBVIRTUAL)  || defined(ARDUINO_attiny3217)
@@ -30,7 +47,23 @@ void setup() {
     Keyboard.begin();
 }
 
+void listenForModeChange(){
+    if(digitalRead(MODE_CHANGE_PIN) == LOW){
+        if(isYtMode){
+            digitalWrite(MODE_LED_PIN,HIGH);
+            dispatcher.setActionSet(&vlcActionSet);
+            isYtMode = false;
+        }else{
+            digitalWrite(MODE_LED_PIN,LOW);
+            dispatcher.setActionSet(&ytActionSet);
+            isYtMode = true;
+        }
+    }
+}
+
 uint16_t receiveIr(){
+    listenForModeChange();
+
     if (!IrReceiver.decode()) {
         return 0;
     }
@@ -58,17 +91,6 @@ uint16_t receiveIr(){
 
 
 void loop() {
-    uint16_t dispatchArr[3] = {
-        0x43,
-        0x40,
-        0x44
-    };
-    YTActionSet ytActionSet = YTActionSet();
-    VLCMacActionSet vlcActionSet = VLCMacActionSet();
-    Dispatcher dispatcher = Dispatcher(
-        &ytActionSet,
-        dispatchArr
-    );
 
     delay(200);
     uint16_t received = receiveIr();
