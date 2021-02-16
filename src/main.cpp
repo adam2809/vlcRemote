@@ -1,6 +1,4 @@
 #define MARK_EXCESS_MICROS 20
-#define VOL_UP_KEY 0xB0
-#define VOL_DOWN_KEY 0xEA
 
 #include <Arduino.h>
 #include <IRremote.h>
@@ -10,11 +8,17 @@ int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
 #define MODE_LED_PIN 14
 
-uint16_t carMp3DispatchArr[4] = {
-        0x43,
-        0x40,
-        0x44,
-        0x9
+uint16_t carMp3DispatchArr[ACTION_COUNT] = {
+        0x43, //PLAY/PAUSE
+        0x40, //NEXT
+        0x44, //PREV
+        0x9,  //EQ
+        0x47, //CH+
+        0x45, //CH-
+        0x46, //CH
+        0x15, //+
+        0x7, //-
+        0xD //+200
     };
 bool isYtMode = false;
 YTActionSet ytActionSet = YTActionSet();
