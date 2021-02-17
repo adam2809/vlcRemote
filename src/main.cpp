@@ -8,7 +8,7 @@ int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
 #define MODE_LED_PIN 14
 
-uint16_t carMp3DispatchArr[ACTION_COUNT] = {
+uint16_t necDispatchArr[ACTION_COUNT] = {
         0x43, //PLAY/PAUSE
         0x40, //NEXT
         0x44, //PREV
@@ -21,7 +21,7 @@ uint16_t carMp3DispatchArr[ACTION_COUNT] = {
         0xD //+200
     };
 
-uint16_t lgBluRayDispatchArr[ACTION_COUNT] = {
+uint16_t samsungDispatchArr[ACTION_COUNT] = {
         0x31, //PLAY
         0x33, //FORWARD
         0x32, //BACK
@@ -29,8 +29,8 @@ uint16_t lgBluRayDispatchArr[ACTION_COUNT] = {
         0x34, //NEXT
         0x35, //PREV
         0x3A, //INFO/MENU
-        0x10, //VOL+
-        0x11, //VOL-
+        0x47, //UP
+        0x48, //DOWN
         0x7D //G
     };
 bool isYtMode = false;
@@ -38,8 +38,11 @@ YTActionSet ytActionSet = YTActionSet();
 VLCLinuxActionSet vlcActionSet = VLCLinuxActionSet();
 Dispatcher dispatcher = Dispatcher(
     &vlcActionSet,
-    lgBluRayDispatchArr
+    samsungDispatchArr
 );
+
+IRData currIrData;
+decode_type_t currProtocol;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -79,17 +82,17 @@ void listenForModeChange(){
     }
 }
 
-uint16_t receiveIr(){
+bool receiveIr(IRData* irData){
     listenForModeChange();
 
     if (!IrReceiver.decode()) {
-        return 0;
+        return false;
     }
 
     if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_WAS_OVERFLOW) {
         IrReceiver.decodedIRData.flags = false; 
         Serial.println(F("Overflow detected"));
-        return 0;
+        return false;
     } else {
         IrReceiver.printIRResultShort(&Serial);
         if (IrReceiver.decodedIRData.protocol == UNKNOWN) {
@@ -98,19 +101,30 @@ uint16_t receiveIr(){
     }
 
     IrReceiver.resume();
-    
-    if (IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT) {
-        return IrReceiver.decodedIRData.command;
-    }
-
-    return 0;
+    irData = &IrReceiver.decodedIRData;
+    return true;
 }
 
-
 void loop() {
-    uint16_t received = receiveIr();
+    if (!receiveIr(&currIrData)){
+        return;
+    }
 
-    if (received != 0){
-        dispatcher.dispatchCommand(received);
+    if(IrReceiver.decodedIRData.protocol!=currProtocol){
+        currProtocol = IrReceiver.decodedIRData.protocol;
+        Serial.print("Switching protocol to ");Serial.print(getProtocolString(currProtocol));Serial.println();
+        switch (currProtocol){
+            case SAMSUNG:
+                dispatcher.setDispatchArr(samsungDispatchArr);
+                break;        
+            case NEC:
+                dispatcher.setDispatchArr(necDispatchArr);
+                break;
+            default:
+                Serial.println("Unsupported protocol");
+        }
+    }
+    if (!(IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT)) {
+        dispatcher.dispatchCommand(IrReceiver.decodedIRData.command);
     }
 }
