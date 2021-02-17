@@ -20,12 +20,25 @@ uint16_t carMp3DispatchArr[ACTION_COUNT] = {
         0x7, //-
         0xD //+200
     };
+
+uint16_t lgBluRayDispatchArr[ACTION_COUNT] = {
+        0x31, //PLAY
+        0x33, //FORWARD
+        0x32, //BACK
+        0x7C,  //R
+        0x34, //NEXT
+        0x35, //PREV
+        0x3A, //INFO/MENU
+        0x10, //VOL+
+        0x11, //VOL-
+        0x7D //G
+    };
 bool isYtMode = false;
 YTActionSet ytActionSet = YTActionSet();
 VLCLinuxActionSet vlcActionSet = VLCLinuxActionSet();
 Dispatcher dispatcher = Dispatcher(
     &vlcActionSet,
-    carMp3DispatchArr
+    lgBluRayDispatchArr
 );
 
 void setup() {
@@ -85,11 +98,8 @@ uint16_t receiveIr(){
     }
 
     IrReceiver.resume();
-
-    if (
-        IrReceiver.decodedIRData.address == 0 &&
-        (IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT)
-    ) {
+    
+    if (IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT) {
         return IrReceiver.decodedIRData.command;
     }
 
