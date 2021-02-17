@@ -83,11 +83,13 @@ uint16_t receiveIr(){
             IrReceiver.printIRResultRawFormatted(&Serial, true);
         }
     }
-    Serial.println();
 
     IrReceiver.resume();
 
-    if (IrReceiver.decodedIRData.address == 0) {
+    if (
+        IrReceiver.decodedIRData.address == 0 &&
+        (IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT)
+    ) {
         return IrReceiver.decodedIRData.command;
     }
 
@@ -96,8 +98,6 @@ uint16_t receiveIr(){
 
 
 void loop() {
-
-    delay(200);
     uint16_t received = receiveIr();
 
     if (received != 0){
