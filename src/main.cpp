@@ -8,6 +8,17 @@ int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
 #define MODE_LED_PIN 14
 
+struct button{
+    bool prev;
+    int pin;
+};
+typedef struct button Button;
+
+Button modeChangeButton = {
+    HIGH,
+    MODE_CHANGE_PIN
+};
+
 uint16_t necDispatchArr[ACTION_COUNT] = {
         0x43, //PLAY/PAUSE
         0x40, //NEXT
@@ -69,17 +80,20 @@ void setup() {
 }
 
 void listenForModeChange(){
-    if(digitalRead(MODE_CHANGE_PIN) == LOW){
+    if(!digitalRead(modeChangeButton.pin) && modeChangeButton.prev){
         if(isYtMode){
+            Serial.println("Switching to vlc mode");
             digitalWrite(MODE_LED_PIN,HIGH);
             dispatcher.setActionSet(&vlcActionSet);
             isYtMode = false;
         }else{
+            Serial.println("Switching to yt mode");
             digitalWrite(MODE_LED_PIN,LOW);
             dispatcher.setActionSet(&ytActionSet);
             isYtMode = true;
         }
     }
+    modeChangeButton.prev = digitalRead(modeChangeButton.pin);
 }
 
 bool receiveIr(IRData* irData){
@@ -110,7 +124,7 @@ void loop() {
         return;
     }
 
-    if(IrReceiver.decodedIRData.protocol!=currProtocol){
+    if(IrReceiver.decodedIRData.protocol != currProtocol){
         currProtocol = IrReceiver.decodedIRData.protocol;
         Serial.print("Switching protocol to ");Serial.print(getProtocolString(currProtocol));Serial.println();
         switch (currProtocol){
