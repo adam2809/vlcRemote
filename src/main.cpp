@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <IRremote.h>
 #include "RemoteAction.cpp"
+#include "mappings.h"
 
 int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
