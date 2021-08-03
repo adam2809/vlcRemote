@@ -4,6 +4,7 @@
 #include <IRremote.h>
 #include "RemoteAction.cpp"
 #include "mappings.h"
+#include <vector>
 
 int IR_RECEIVE_PIN = 10;
 #define MODE_CHANGE_PIN 16
@@ -56,6 +57,9 @@ Dispatcher dispatcher = Dispatcher(
 IRData currIrData;
 decode_type_t currProtocol;
 
+std::map<uint16_t,action_t>& curr_cmd_2_action = samsung_cmd_2_action;
+std::map<action_t,std::vector<int>>& curr_action_2_keys = vlc_action_2_keys;
+
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(MODE_CHANGE_PIN, INPUT_PULLUP);
@@ -85,16 +89,27 @@ void listenForModeChange(){
         if(isYtMode){
             Serial.println("Switching to vlc mode");
             digitalWrite(MODE_LED_PIN,HIGH);
-            dispatcher.setActionSet(&vlcActionSet);
+            curr_action_2_keys = vlc_action_2_keys;
             isYtMode = false;
         }else{
             Serial.println("Switching to yt mode");
             digitalWrite(MODE_LED_PIN,LOW);
-            dispatcher.setActionSet(&ytActionSet);
+            curr_action_2_keys = yt_action_2_keys;
             isYtMode = true;
         }
     }
     modeChangeButton.prev = digitalRead(modeChangeButton.pin);
+}
+
+// Holds down the keys except for the last one then presses the last one and releases all
+void execute_keys(std::vector<int>& keys){
+    for(auto i=keys.begin();i != (keys.end()-1);i++){
+        Keyboard.press(*i);
+    }
+
+    Keyboard.write(keys.back());
+
+    Keyboard.releaseAll();
 }
 
 bool receiveIr(IRData* irData){
@@ -130,16 +145,19 @@ void loop() {
         Serial.print("Switching protocol to ");Serial.print(getProtocolString(currProtocol));Serial.println();
         switch (currProtocol){
             case SAMSUNG:
-                dispatcher.setDispatchArr(samsungDispatchArr);
+                curr_cmd_2_action = samsung_cmd_2_action;
                 break;        
             case NEC:
-                dispatcher.setDispatchArr(necDispatchArr);
+                curr_cmd_2_action = nec_cmd_2_action;
                 break;
             default:
                 Serial.println("Unsupported protocol");
         }
     }
+
     if (!(IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT)) {
-        dispatcher.dispatchCommand(IrReceiver.decodedIRData.command);
+        action_t action = curr_cmd_2_action[IrReceiver.decodedIRData.command];
+        std::vector<int> keys = curr_action_2_keys[action];
+        execute_keys(keys);
     }
-}
+}   
