@@ -11,7 +11,8 @@ IRData currIrData;
 decode_type_t currProtocol;
 
 std::map<uint16_t,action_t>& curr_cmd_2_action = samsung_cmd_2_action;
-std::map<action_t,std::vector<int>>& curr_action_2_keys = vlc_action_2_keys;
+int curr_mode = 0;
+std::map<action_t,std::vector<int>>& curr_action_2_keys = action_2_keys[curr_mode];
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -44,6 +45,9 @@ void execute_keys(std::vector<int>& keys){
     Keyboard.releaseAll();
 }
 
+void listenForProtocolChange(){
+}
+
 bool receiveIr(IRData* irData){
     if (!IrReceiver.decode()) {
         return false;
@@ -69,7 +73,7 @@ void loop() {
     if (!receiveIr(&currIrData)){
         return;
     }
-
+    
     if(IrReceiver.decodedIRData.protocol != currProtocol){
         currProtocol = IrReceiver.decodedIRData.protocol;
         Serial.print("Switching protocol to ");Serial.print(getProtocolString(currProtocol));Serial.println();
@@ -87,7 +91,15 @@ void loop() {
 
     if (!(IrReceiver.decodedIRData.flags && IRDATA_FLAGS_IS_REPEAT)) {
         action_t action = curr_cmd_2_action[IrReceiver.decodedIRData.command];
-        std::vector<int> keys = curr_action_2_keys[action];
-        execute_keys(keys);
+        if(action == MODECNG){
+            curr_mode++;
+            curr_mode%=MODE_COUNT;
+            Serial.print("Changing mode to ");Serial.print(curr_mode);Serial.println();
+            curr_action_2_keys = action_2_keys[curr_mode];
+        }else{
+            std::vector<int> keys = curr_action_2_keys[action];
+            execute_keys(keys);
+        }
+        Serial.println(curr_action_2_keys[PLAY][0]);  
     }
 }
