@@ -11,8 +11,7 @@ IRData currIrData;
 decode_type_t currProtocol;
 
 std::map<uint16_t,action_t>& curr_cmd_2_action = samsung_cmd_2_action;
-int curr_mode = 0;
-std::map<action_t,std::vector<int>>& curr_action_2_keys = action_2_keys[curr_mode];
+int curr_mode = 1;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -95,11 +94,10 @@ void loop() {
             curr_mode++;
             curr_mode%=MODE_COUNT;
             Serial.print("Changing mode to ");Serial.print(curr_mode);Serial.println();
-            curr_action_2_keys = action_2_keys[curr_mode];
         }else{
-            std::vector<int> keys = curr_action_2_keys[action];
+            std::vector<int> keys = action_2_keys[curr_mode][action];
             execute_keys(keys);
         }
-        Serial.println(curr_action_2_keys[PLAY][0]);  
+        Serial.println(action_2_keys[curr_mode][PLAY][0]);  
     }
 }
