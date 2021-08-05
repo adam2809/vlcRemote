@@ -1,9 +1,11 @@
 #define MARK_EXCESS_MICROS 20
+#define DECODE_SAMSUNG
+#define DECODE_NEC
 
 #include <Arduino.h>
-#include <IRremote.h>
 #include "mappings.h"
 #include <vector>
+#include <IRremote.h>
 
 int IR_RECEIVE_PIN = 10;
 
@@ -11,7 +13,7 @@ IRData currIrData;
 decode_type_t currProtocol;
 
 std::map<uint16_t,action_t>& curr_cmd_2_action = samsung_cmd_2_action;
-int curr_mode = 1;
+int curr_mode = 0;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -34,17 +36,17 @@ void setup() {
 }
 
 // Holds down the keys except for the last one then presses the last one and releases all
-void execute_keys(std::vector<int>& keys){
+void execute_keys(std::vector<char>& keys){
+    Serial.print("Pressing keys: ");
     for(auto i=keys.begin();i != (keys.end()-1);i++){
+        Serial.print(*i);
+        Serial.print(' ');
         Keyboard.press(*i);
     }
-
+    Serial.print("and clicking: ");Serial.print(keys.back());Serial.println();
     Keyboard.write(keys.back());
 
-    Keyboard.releaseAll();
-}
-
-void listenForProtocolChange(){
+    Keyboard.releaseAll(); 
 }
 
 bool receiveIr(IRData* irData){
@@ -95,9 +97,8 @@ void loop() {
             curr_mode%=MODE_COUNT;
             Serial.print("Changing mode to ");Serial.print(curr_mode);Serial.println();
         }else{
-            std::vector<int> keys = action_2_keys[curr_mode][action];
+            std::vector<char> keys = action_2_keys[curr_mode][action];
             execute_keys(keys);
         }
-        Serial.println(action_2_keys[curr_mode][PLAY][0]);  
     }
 }
