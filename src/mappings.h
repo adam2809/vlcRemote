@@ -55,6 +55,21 @@ std::map<uint16_t,action_t> nec_cmd_2_action = {
     {0x19,MODECNG}
 };
 
+std::map<uint16_t,action_t> sony_cmd_2_action = {
+    {0x1A,PLAY},
+    {0x33,FWD},
+    {0x34,BACK},
+    {0x1C,NEXT},
+    {0x1B,PREV},
+    {0x1A,MENU},
+    {0x12,VOLUP},
+    {0x13,VOLDOWN},
+    {0x4D,SUBS},
+    {0xA4,INFO},
+    {0x4C,FULLSCREEN},
+    {0x4F,MODECNG}
+};
+
 std::map<action_t,std::vector<char>> action_2_keys[] = {
     [VLC] = {
         {PLAY,std::vector<char>({' '})},
@@ -78,7 +93,7 @@ std::map<action_t,std::vector<char>> action_2_keys[] = {
         {VOLUP,std::vector<char>({(char) KEY_UP_ARROW})},
         {VOLDOWN,std::vector<char>({(char) KEY_DOWN_ARROW})},
         {FULLSCREEN,std::vector<char>({'f'})},
-        {SUBS,std::vector<char>({'c'})}
+        {SUBS,std::vector<char>({'c'})}                                                                                          
     }
 };
 

@@ -1,6 +1,4 @@
 #define MARK_EXCESS_MICROS 20
-#define DECODE_SAMSUNG
-#define DECODE_NEC
 
 #include <Arduino.h>
 #include "mappings.h"
@@ -84,6 +82,9 @@ void loop() {
                 break;        
             case NEC:
                 curr_cmd_2_action = nec_cmd_2_action;
+                break;  
+            case SONY:
+                curr_cmd_2_action = sony_cmd_2_action;
                 break;
             default:
                 Serial.println("Unsupported protocol");
